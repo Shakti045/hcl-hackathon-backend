@@ -55,35 +55,37 @@ class MinHeap {
     isEmpty() {
     return this.heap.length === 0;
     }
-   }
+}
    
-   class Graph {
+export class Graph {
     constructor(banks, links) {
+    console.log("Building graph...");
     this.banks = new Map();
     this.adjList = new Map();
    
     // Initialize banks
-    banks.forEach(({ id, charge }) => {
-    this.banks.set(id, charge);
-    this.adjList.set(id, []);
+    banks.forEach(({ bic, charge }) => {
+    this.banks.set(bic, charge);
+    this.adjList.set(bic, []);
     });
    
     // Build adjacency list
-    links.forEach(({ srcbid, tobanks }) => {
-    tobanks.forEach(({ destbid, time }) => {
-    this.adjList.get(srcbid).push({ destbid, time });
-    this.adjList.get(destbid).push({ destbid: srcbid, time }); // Assuming bidirectional links
+    links.forEach(({ frombic, tobanks }) => {
+    tobanks.forEach(({ tobic, timerequired }) => {
+    this.adjList.get(frombic).push({ tobic, timerequired });
+    this.adjList.get(tobic).push({ tobic: frombic, timerequired }); 
     });
     });
+    console.log("Graph created")
     }
    
-    // Dijkstra’s algorithm for cheapest charge
+  
     findCheapestCharge(start, end) {
     let minHeap = new MinHeap();
     let costMap = new Map();
    
     // Initialize all costs to Infinity
-    this.banks.forEach((_, id) => costMap.set(id, Infinity));
+    this.banks.forEach((_, bic) => costMap.set(bic, Infinity));
     costMap.set(start, this.banks.get(start));
    
     minHeap.enqueue({ node: start, priority: this.banks.get(start) });
@@ -93,11 +95,11 @@ class MinHeap {
    
     if (node === end) return cost;
    
-    for (let { destbid } of this.adjList.get(node)) {
-    let newCost = cost + this.banks.get(destbid);
-    if (newCost < costMap.get(destbid)) {
-    costMap.set(destbid, newCost);
-    minHeap.enqueue({ node: destbid, priority: newCost });
+    for (let { tobic } of this.adjList.get(node)) {
+    let newCost = cost + this.banks.get(tobic);
+    if (newCost < costMap.get(tobic)) {
+    costMap.set(tobic, newCost);
+    minHeap.enqueue({ node: tobic, priority: newCost });
     }
     }
     }
@@ -111,44 +113,28 @@ class MinHeap {
     let timeMap = new Map();
    
     // Initialize all times to Infinity
-    this.banks.forEach((_, id) => timeMap.set(id, Infinity));
+    this.banks.forEach((_, bic) => timeMap.set(bic, Infinity));
     timeMap.set(start, 0);
    
     minHeap.enqueue({ node: start, priority: 0 });
    
     while (!minHeap.isEmpty()) {
-    let { node, priority: time } = minHeap.dequeue();
+    let { node, priority: timerequired } = minHeap.dequeue();
    
-    if (node === end) return time;
-   
-    for (let { destbid, time: travelTime } of this.adjList.get(node)) {
-    let newTime = time + travelTime;
-    if (newTime < timeMap.get(destbid)) {
-    timeMap.set(destbid, newTime);
-    minHeap.enqueue({ node: destbid, priority: newTime });
+    if (node === end) return timerequired;
+   if(!this.adjList.get(node)) return -1;
+    for (let { tobic, timerequired: travelTime } of this.adjList.get(node)) {
+    let newTime = timerequired + travelTime;
+    if (newTime < timeMap.get(tobic)) {
+    timeMap.set(tobic, newTime);
+    minHeap.enqueue({ node: tobic, priority: newTime });
     }
     }
     }
    
-    return -1; // No path found
+    return -1; 
     }
-   }
+}
    
-   const banks = [
-    { id: "A", charge: 10 },
-    { id: "B", charge: 20 },
-    { id: "C", charge: 15 }
-   ];
-   
-   const links = [
-    { srcbid: "A", tobanks: [{ destbid: "B", time: 5 }, { destbid: "C", time: 20 }] },
-    { srcbid: "B", tobanks: [{ destbid: "C", time: 10 }] }
-   ];
-   
-   const graph = new Graph(banks, links);
-   export const h =()=>{
-    console.log(graph.findCheapestCharge("A", "C"));
-    console.log(graph.findLeastTime("A", "C")); 
-  }
    
    
