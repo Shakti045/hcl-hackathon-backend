@@ -4,6 +4,7 @@ import { errorHandler } from './utils/errorhandler.js';
 import { connectdb } from './connections/db.js';
 import { createbankrecords, createlinks } from './scripts/index.js';
 import { buildGraph } from './scripts/graph.js';
+import cors from 'cors'
 
 
 const app = express();
@@ -17,12 +18,15 @@ app.listen(PORT,()=>{
     console.log(`Server is running on port ${PORT}`)
 })
 
-connectdb().then(async()=>{
-    const g = await buildGraph();
-});
+connectdb();
 app.get("/health",(req,res)=>{
     return res.send("OK");
 })
+
+app.use(cors({
+    origin:"*",
+    credentials:true
+}))
 
 // createbankrecords();
 // createlinks();

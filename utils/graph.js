@@ -94,7 +94,7 @@ export class Graph {
     let { node, priority: cost } = minHeap.dequeue();
    
     if (node === end) return cost;
-   
+    if(!this.adjList.get(node)) return -1;
     for (let { tobic } of this.adjList.get(node)) {
     let newCost = cost + this.banks.get(tobic);
     if (newCost < costMap.get(tobic)) {

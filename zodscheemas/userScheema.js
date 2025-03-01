@@ -13,3 +13,5 @@ export const UserSchema = {
         userId: z.string().uuid("Invalid user ID format"),
     })
 };
+
+export const queerySchema = z.object({fromBic:z.string("Source Bic Is Required"),srcBic:z.string("Destination Bic Is Required")});

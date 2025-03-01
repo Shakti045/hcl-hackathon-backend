@@ -48,3 +48,13 @@ export const createlinks = async()=>{
         console.log("Link records creation failed",error);
     }
 }
+
+
+export const getbanks = async(req,res)=>{
+    try {
+        const data = await Bank.find({},{bic:1,charge:1});
+        return res.status(200).json(data);
+    } catch (error) {
+        return res.status(500).json({message:"Failed to get banks"});
+    }
+}
