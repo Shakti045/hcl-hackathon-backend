@@ -1,3 +1,4 @@
+import redis from "../connections/redis.js";
 import { Transanction } from "../models/trasanction.model.js";
 import { buildGraph } from "../scripts/graph.js";
 
@@ -11,13 +12,14 @@ export const leastchargeclaculator = async(req,res)=>{
             graph = await buildGraph();
         }
         const charge = graph.findCheapestCharge(fromBic,srcBic);
-        await Transanction.create({userId,fromBic,toBic:srcBic,status:"pending"});
+        const trans = await Transanction.create({userId,fromBic,toBic:srcBic,status:"pending"});
         return res.status(200).json({
             success:true,
             message:"Charge calculated successfully",
             fromBic,
             srcBic,
-            charge
+            charge,
+            tid:trans._id  
         })
     } catch (error) {
         console.log(error);
@@ -36,14 +38,16 @@ export const leastTimeCalculator = async(req,res)=>{
         if(graph==null){
             graph = await buildGraph();
         }
+
         const time = graph.findLeastTime(fromBic,srcBic);
-        await Transanction.create({userId,fromBic,toBic:srcBic,status:"pending"});
+        const tra = await Transanction.create({userId,fromBic,toBic:srcBic,status:"pending"});
         return res.status(200).json({
             success:true,
             message:"Time calculated successfully",
             fromBic,
             srcBic,
-            time
+            time,
+            tid:tra._id
         })
     } catch (error) {
         return res.status(500).json({
